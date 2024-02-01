@@ -8,15 +8,18 @@ headers = {
     "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com",
 }
 
-# def extract_text_from_response(response):
-#     try:
-#         json_response = response.json()
-#         result = json_response.get('result', '')
-#         return result
-#     except json.JSONDecodeError:
-#         return "Error: Unable to decode response JSON"
+def extract_text_from_response(response):
+    try:
+        json_response = response.json()
+        result = json_response.get('result', '')
 
+        # Check if the "result" field is empty
+        if not result:
+            return "Error: Empty result field"
 
+        return result
+    except json.JSONDecodeError:
+        return "Error: Unable to decode response JSON"
 
 def chat_with_chatgpt(prompt):
     data = {
@@ -37,12 +40,9 @@ def chat_with_chatgpt(prompt):
     response = requests.post(url, headers=headers, data=json.dumps(data))
 
     if response.status_code == 200:
-        # Print the entire response content for debugging
-        return response.text
-
         # Extract text from the response
-        # extracted_text = extract_text_from_response(response.json)
-        # return extracted_text.strip()
+        extracted_text = extract_text_from_response(response)
+        return extracted_text.strip()
     else:
         return f"Error: {response.status_code}, {response.text}"
 
