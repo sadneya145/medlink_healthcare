@@ -1,10 +1,6 @@
-# chatbot with normal view
-
 import requests
 import json
-import tkinter as tk
-from tkinter import *
-from PIL import Image,ImageTk
+
 url = "https://chatgpt-42.p.rapidapi.com/conversationgpt4"
 headers = {
     "Content-Type": "application/json",
@@ -12,14 +8,15 @@ headers = {
     "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com",
 }
 
-def process_user_input():
-    user_input = entry.get()
-    chat_display.insert(tk.END, "You: " + user_input + "\n")
+# def extract_text_from_response(response):
+#     try:
+#         json_response = response.json()
+#         result = json_response.get('result', '')
+#         return result
+#     except json.JSONDecodeError:
+#         return "Error: Unable to decode response JSON"
 
-    if user_input.lower() in ["quit", "exit", "bye"]:
-        root.destroy()
 
-    entry.delete(0, tk.END)  # Clear the entry widget after processing input
 
 def chat_with_chatgpt(prompt):
     data = {
@@ -41,40 +38,19 @@ def chat_with_chatgpt(prompt):
 
     if response.status_code == 200:
         # Print the entire response content for debugging
-        print(response.text)
+        return response.text
 
-        # Check if 'choices' and 'message' keys exist
-        choices = response.json().get('choices', [])
-        if choices and len(choices) > 0:
-            message = choices[0].get('message', '')
-            return message.strip()
-        else:
-            return "Error: Unexpected response format"
+        # Extract text from the response
+        # extracted_text = extract_text_from_response(response.json)
+        # return extracted_text.strip()
     else:
         return f"Error: {response.status_code}, {response.text}"
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    root.attributes('-fullscreen', True)
-    root.title("chat-help")
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() in ["quit", "exit", "bye"]:
+            break
 
-    # Load the background image
-    logo_image = Image.open("chatgpt logo.png")  # Replace with the path to your logo image
-    logo_photo = ImageTk.PhotoImage(logo_image)
-    
-    # Set the logo for the window
-    root.iconphoto(True, logo_photo)
-
-    # Chat display area
-    chat_display = tk.Text(root, wrap=tk.WORD, width=40, height=10)
-    chat_display.pack(padx=10, pady=10)
-
-    # User input entry
-    entry = tk.Entry(root, width=40)
-    entry.pack(pady=5)
-
-    # Send button
-    send_button = tk.Button(root, text="Send", command=process_user_input)
-    send_button.pack(pady=10)
-
-    root.mainloop()
+        response = chat_with_chatgpt(user_input)
+        print("Chatbot:", response)
