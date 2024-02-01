@@ -1,0 +1,56 @@
+import requests
+import json
+
+url = "https://chatgpt-42.p.rapidapi.com/conversationgpt4"
+headers = {
+    "Content-Type": "application/json",
+    "X-RapidAPI-Key": "68ff9939c8msh2c3041494ed290dp148805jsn89dbb091c75b",
+    "X-RapidAPI-Host": "chatgpt-42.p.rapidapi.com",
+}
+
+def extract_text_from_response(response):
+    try:
+        json_response = response.json()
+        result = json_response.get('result', '')
+
+        # Check if the "result" field is empty
+        if not result:
+            return "Error: Empty result field"
+
+        return result
+    except json.JSONDecodeError:
+        return "Error: Unable to decode response JSON"
+
+def chat_with_chatgpt(prompt):
+    data = {
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "system_prompt": "",
+        "temperature": 0.9,
+        "top_k": 5,
+        "top_p": 0.9,
+        "max_tokens": 256,
+        "web_access": False
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+
+    if response.status_code == 200:
+        # Extract text from the response
+        extracted_text = extract_text_from_response(response)
+        return extracted_text.strip()
+    else:
+        return f"Error: {response.status_code}, {response.text}"
+
+if __name__ == "__main__":
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() in ["quit", "exit", "bye"]:
+            break
+
+        response = chat_with_chatgpt(user_input)
+        print("Chatbot:", response)
