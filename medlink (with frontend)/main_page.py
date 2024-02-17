@@ -103,11 +103,11 @@ def create_signup_window(user_type):
                 login_and_signup.p_login(email_entry.get(), password_entry.get())
 
         # Login button
-        btn_login = tk.Button(login_window, text='Login', command=user_login, width=23, height=3)
+        btn_login = tk.Button(login_window, text='Login', command=user_login, width=18, height=2)
         btn_login.pack(pady=20)
 
     # Signup button
-    btn_signup = tk.Button(signup_window, text='Signup', command=signup, width=23, height=3)
+    btn_signup = tk.Button(signup_window, text='Signup', command=signup, width=18, height=2)
     btn_signup.pack(pady=20)
 
     # Already a user? Login button
@@ -129,10 +129,10 @@ tk.Label(root, text="MedLink", font=('Helvetica', 23)).pack(pady=20)
 tk.Label(root, text='Welcome to "MedLink"!', font=('Helvetica', 18)).pack()
 
 # Buttons
-btn_doctor = tk.Button(root, text='Doctor Signup', command=lambda: create_signup_window("Doctor"), width=23, height=3)
+btn_doctor = tk.Button(root, text='Doctor Signup', command=lambda: create_signup_window("Doctor"), width=18, height=2)
 btn_doctor.pack(pady=20)
 
-btn_patient = tk.Button(root, text='Patient Signup', command=lambda: create_signup_window("Patient"), width=23, height=3)
+btn_patient = tk.Button(root, text='Patient Signup', command=lambda: create_signup_window("Patient"), width=18, height=3)
 btn_patient.pack()
 
 root.mainloop()
