@@ -127,24 +127,20 @@ def fetch_data(query, values=None):
             conn.close()
 
 
+import tkinter as tk
+from tkinter import messagebox
+from PIL import Image, ImageTk
+
 def open_doctor_window():
     root.withdraw()
     doctor_window = tk.Toplevel(root)
     center_window(doctor_window)
     doctor_window.attributes('-fullscreen', True)
 
-    # Open and convert the new image using Pillow
-    new_image_path = r"medlink\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype.png"
-
-    # Replace with the path to your new image
-    new_pil_image = Image.open(new_image_path)
+    new_image_path = r"medlink1\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype.png"
+    new_pil_image = Image.open(new_image_path).resize((1100, 1000), Image.LANCZOS)
     new_tk_image = ImageTk.PhotoImage(new_pil_image)
 
-    # Get the image size
-    new_image_width = new_tk_image.width()
-    new_image_height = new_tk_image.height()
-
-    # Create a Label to display the new image as a background in the doctor_window
     new_background_label = tk.Label(doctor_window, image=new_tk_image)
     new_background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
@@ -157,36 +153,31 @@ def open_doctor_window():
         open_signup_window("Doctor")
 
     login_button = tk.Button(
-    doctor_window,
-    text="Login",font=("Helvetica", 14),
-    command=doctor_login_clicked,
-    bd=0,  # Border width
-    highlightthickness=-1,  # Set to a negative value for transparency
-    bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
+        doctor_window,
+        text="Login", font=("Helvetica", 14),
+        command=doctor_login_clicked,
+        bd=0,  # Border width
+        highlightthickness=-1,  # Set to a negative value for transparency
+        bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
     )
     login_button.place(relx=0.70, rely=0.4, anchor="center")
 
     signup_button = tk.Button(
-    doctor_window,
-    text="Signup",font=("Helvetica", 14),
-    command=doctor_signup_clicked,
-    bd=0,  # Border width
-    highlightthickness=-1,  # Set to a negative value for transparency
-    bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
+        doctor_window,
+        text="Signup", font=("Helvetica", 14),
+        command=doctor_signup_clicked,
+        bd=0,  # Border width
+        highlightthickness=-1,  # Set to a negative value for transparency
+        bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
     )
     signup_button.place(relx=0.70, rely=0.6, anchor="center")
 
-    # Adjust button width and height based on the screen size
     button_width = int(doctor_window.winfo_screenwidth() / 70)
     button_height = int(doctor_window.winfo_screenheight() / 180)
     login_button.config(width=button_width, height=button_height)
     signup_button.config(width=button_width, height=button_height)
 
-
-    # Start the Tkinter event loop
     doctor_window.mainloop()
-
-
 
 def open_patient_window():
     root.withdraw()
@@ -194,21 +185,13 @@ def open_patient_window():
     center_window(patient_window)
     patient_window.attributes('-fullscreen', True)
 
-    # Open and convert the new image using Pillow
-    new_image_path = r"medlink\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype (2).png"
-
-    # Replace with the path to your new image
-    new_pil_image = Image.open(new_image_path)
+    new_image_path = r"medlink1\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype (2).png"
+    new_pil_image = Image.open(new_image_path).resize((1100, 1000), Image.LANCZOS)
     new_tk_image = ImageTk.PhotoImage(new_pil_image)
 
-    # Get the image size
-    new_image_width = new_tk_image.width()
-    new_image_height = new_tk_image.height()
-
-    # Create a Label to display the new image as a background in the doctor_window
     new_background_label = tk.Label(patient_window, image=new_tk_image)
     new_background_label.place(x=0, y=0, relwidth=1, relheight=1)
-    
+
     def patient_login_clicked():
         patient_window.destroy()
         open_login_window("Patient")
@@ -216,33 +199,32 @@ def open_patient_window():
     def patient_signup_clicked():
         patient_window.destroy()
         open_signup_window("Patient")
-        
+
     login_button = tk.Button(
-    patient_window,
-    text="Login",font=("Helvetica", 14),
-    command=patient_login_clicked,
-    bd=0,  # Border width
-    highlightthickness=-1,  # Set to a negative value for transparency
-    bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
+        patient_window,
+        text="Login", font=("Helvetica", 14),
+        command=patient_login_clicked,
+        bd=0,  # Border width
+        highlightthickness=-1,  # Set to a negative value for transparency
+        bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
     )
     login_button.place(relx=0.70, rely=0.4, anchor="center")
 
     signup_button = tk.Button(
-    patient_window,
-    text="Signup",font=("Helvetica", 14),
-    command=patient_signup_clicked,
-    bd=0,  # Border width
-    highlightthickness=-1,  # Set to a negative value for transparency
-    bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
+        patient_window,
+        text="Signup", font=("Helvetica", 14),
+        command=patient_signup_clicked,
+        bd=0,  # Border width
+        highlightthickness=-1,  # Set to a negative value for transparency
+        bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
     )
     signup_button.place(relx=0.70, rely=0.6, anchor="center")
-    # Adjust button width and height based on the screen size
+
     button_width = int(patient_window.winfo_screenwidth() / 70)
     button_height = int(patient_window.winfo_screenheight() / 180)
     login_button.config(width=button_width, height=button_height)
     signup_button.config(width=button_width, height=button_height)
 
-    # Start the Tkinter event loop
     patient_window.mainloop()
 
 def open_login_window(user_type):
@@ -251,34 +233,24 @@ def open_login_window(user_type):
     login_window.title(f"{user_type} Login")
     center_window(login_window)
     login_window.attributes('-fullscreen', True)
-    
-    # Open and convert the new image using Pillow
-    new_image_path = r"medlink\4.png"
 
-    # Replace with the path to your new image
-    new_pil_image = Image.open(new_image_path)
+    new_image_path = r"medlink1\4.png"
+    new_pil_image = Image.open(new_image_path).resize((1100, 1000), Image.LANCZOS)
     new_tk_image = ImageTk.PhotoImage(new_pil_image)
 
-    # Get the image size
-    new_image_width = new_tk_image.width()
-    new_image_height = new_tk_image.height()
-
-    # Create a Label to display the new image as a background in the doctor_window
     new_background_label = tk.Label(login_window, image=new_tk_image)
     new_background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-    # Email Label and Entry
-    email_label = tk.Label(login_window, text="Email:",width=30,height=3,bg="#A9BABD")
+    email_label = tk.Label(login_window, text="Email:", width=30, height=3, bg="#A9BABD")
     email_label.place(relx=0.6, rely=0.4, anchor="center")
 
-    email_entry = tk.Entry(login_window,width=30)
+    email_entry = tk.Entry(login_window, width=30)
     email_entry.place(relx=0.9, rely=0.4, anchor="center")
 
-    # Password Label and Entry
-    password_label = tk.Label(login_window, text="Password:",width=30,height=3,bg="#A9BABD")
+    password_label = tk.Label(login_window, text="Password:", width=30, height=3, bg="#A9BABD")
     password_label.place(relx=0.6, rely=0.5, anchor="center")
 
-    password_entry = tk.Entry(login_window,width=30, show='*')
+    password_entry = tk.Entry(login_window, width=30, show='*')
     password_entry.place(relx=0.9, rely=0.5, anchor="center")
 
     def login():
@@ -294,16 +266,14 @@ def open_login_window(user_type):
             login_window.lift()
 
     login_button = tk.Button(login_window, text="Login", font=("Helvetica", 14), command=login, width=40, height=2,
-                            bd=0, highlightthickness=0,bg="#A9BABD")
+                            bd=0, highlightthickness=0, bg="#A9BABD")
     login_button.place(relx=0.70, rely=0.8, anchor="center")
 
     not_user_button = tk.Button(login_window, text="Not a user? Signup here", font=("Helvetica", 14),
                                 command=lambda: open_signup_window(user_type), width=40, height=2,
-                                bd=0, highlightthickness=0,bg="#A9BABD")
+                                bd=0, highlightthickness=0, bg="#A9BABD")
     not_user_button.place(relx=0.70, rely=0.9, anchor="center")
 
-
-    # Adjust button width and height based on the screen size
     button_width = int(login_window.winfo_screenwidth() / 70)
     button_height = int(login_window.winfo_screenheight() / 220)
     login_button.config(width=button_width, height=button_height)
@@ -311,65 +281,54 @@ def open_login_window(user_type):
 
     login_window.mainloop()
 
-
 def open_signup_window(user_type):
     root.withdraw()
     signup_window = tk.Toplevel(root)
     signup_window.title(f"{user_type} Signup")
     center_window(signup_window)
-    signup_window.attributes('-fullscreen', True)
-    
-     # Open and convert the new image using Pillow
-    new_image_path = r"medlink\2.png"
+    w = 1100
+    h = 1000
+    signup_window.geometry(f"{w}x{h}")
 
-    # Replace with the path to your new image
-    new_pil_image = Image.open(new_image_path)
+    new_image_path = r"medlink1\2.png"
+    new_pil_image = Image.open(new_image_path).resize((w, h), Image.LANCZOS)
     new_tk_image = ImageTk.PhotoImage(new_pil_image)
 
-    # Get the image size
-    new_image_width = new_tk_image.width()
-    new_image_height = new_tk_image.height()
-
-    # Create a Label to display the new image as a background in the doctor_window
     new_background_label = tk.Label(signup_window, image=new_tk_image)
-    new_background_label.place(x=0, y=0, relwidth=1, relheight=1)   
+    new_background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-    # tk.Label(signup_window, text=f"{user_type} Signup").pack()
-
-    # Email Label and Entry
     email_label = tk.Label(signup_window, text="Email:", width=30, height=3, bg="#A9BABD")
     email_label.place(relx=0.6, rely=0.1, anchor="center")
 
     email_entry = tk.Entry(signup_window, width=30)
     email_entry.place(relx=0.9, rely=0.1, anchor="center")
 
-    # Password Label and Entry
     password_label = tk.Label(signup_window, text="Password:", width=30, height=3, bg="#A9BABD")
     password_label.place(relx=0.6, rely=0.2, anchor="center")
 
     password_entry = tk.Entry(signup_window, width=30, show='*')
     password_entry.place(relx=0.9, rely=0.2, anchor="center")
 
-    name_label = tk.Label(signup_window, text="Name:",width=30, height=3, bg="#A9BABD")
+    name_label = tk.Label(signup_window, text="Name:", width=30, height=3, bg="#A9BABD")
     name_label.place(relx=0.6, rely=0.3, anchor="center")
 
     name_entry = tk.Entry(signup_window)
     name_entry.place(relx=0.9, rely=0.3, anchor="center")
 
-    contact_label = tk.Label(signup_window, text="Contact Number:",width=30, height=3, bg="#A9BABD")
+    contact_label = tk.Label(signup_window, text="Contact Number:", width=30, height=3, bg="#A9BABD")
     contact_label.place(relx=0.6, rely=0.4, anchor="center")
 
     contact_entry = tk.Entry(signup_window)
     contact_entry.place(relx=0.9, rely=0.4, anchor="center")
 
     if user_type == "Doctor":
-        qual_label = tk.Label(signup_window, text="Qualifications:",width=30, height=3, bg="#A9BABD")
+        qual_label = tk.Label(signup_window, text="Qualifications:", width=30, height=3, bg="#A9BABD")
         qual_label.place(relx=0.6, rely=0.5, anchor="center")
 
         qual_entry = tk.Entry(signup_window)
         qual_entry.place(relx=0.9, rely=0.5, anchor="center")
 
-        speciality_label = tk.Label(signup_window, text="Speciality:",width=30, height=3, bg="#A9BABD")
+        speciality_label = tk.Label(signup_window, text="Speciality:", width=30, height=3, bg="#A9BABD")
         speciality_label.place(relx=0.6, rely=0.6, anchor="center")
 
         speciality_entry = tk.Entry(signup_window)
@@ -394,21 +353,20 @@ def open_signup_window(user_type):
             messagebox.showwarning("Signup Error", "Please fill in all fields with a valid email and a 10-digit contact number.")
             signup_window.lift()
 
-    signup_button = tk.Button(signup_window, text="Signup", command=signup, font=("Helvetica", 14),  width=40, height=2,
-                            bd=0, highlightthickness=0,bg="#A9BABD")
+    signup_button = tk.Button(signup_window, text="Signup", command=signup(), font=("Helvetica", 14),  width=40, height=2,
+                            bd=0, highlightthickness=0, bg="#A9BABD")
     signup_button.place(relx=0.70, rely=0.8, anchor="center")
 
     already_user_button = tk.Button(signup_window, text="Already a user? Login here", font=("Helvetica", 14),
-                                command=lambda: open_login_window(user_type), width=40, height=2,
-                                bd=0, highlightthickness=0,bg="#A9BABD")
+                                    command=lambda: open_login_window(user_type), width=40, height=2,
+                                    bd=0, highlightthickness=0, bg="#A9BABD")
     already_user_button.place(relx=0.70, rely=0.9, anchor="center")
-    # Adjust button width and height based on the screen size
+
     button_width = int(signup_window.winfo_screenwidth() / 60)
     button_height = int(signup_window.winfo_screenheight() / 220)
     signup_button.config(width=button_width, height=button_height)
     already_user_button.config(width=button_width, height=button_height)
     signup_window.mainloop()
-
 
 def center_window(window):
     window.update_idletasks()
@@ -418,44 +376,32 @@ def center_window(window):
     y = (window.winfo_screenheight() // 2) - (height // 2)
     window.geometry('{}x{}+{}+{}'.format(width, height, x, y))
 
-
 def validate_email(email):
     if re.match(r'^[\w\.-]+@[\w\.-]+$', email):
         return True
     return False
 
-
 root = tk.Tk()
 root.title("eHealthcare")
-root.attributes('-fullscreen', True)
- # Open and convert the image using Pillow
- # Open and convert the image using Pillow
-image_path = r"medlink\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype (1).png"
+w = 1100
+h = 1000
+root.geometry(f"{w}x{h}")
 
-  # Replace with the path to your image
-pil_image = Image.open(image_path)
+image_path = r"medlink1\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype (1).png"
+pil_image = Image.open(image_path).resize((w, h), Image.LANCZOS)
 tk_image = ImageTk.PhotoImage(pil_image)
 
-    # Get the image size
-image_width = tk_image.width()
-image_height = tk_image.height()
-# Create a Label to display the image as a background
 background_label = tk.Label(root, image=tk_image)
 background_label.place(x=0, y=0, relwidth=1, relheight=1)
-# welcome_label = tk.Label(root, text="Welcome to eHealthcare", font=("Helvetica", 20))
-# welcome_label.pack(pady=(100, 50))  # Adding padding to the top and bottom of the label
 
-# Create Doctor Button
 doctor_button = tk.Button(root, text="Doctor", font=("Helvetica", 14), command=open_doctor_window, width=40, height=2,
-                          bd=0, highlightthickness=0,bg="#A9BABD")
+                          bd=0, highlightthickness=0, bg="#A9BABD")
 doctor_button.place(relx=0.70, rely=0.4, anchor="center")
 
-# Create Patient Button
 patient_button = tk.Button(root, text="Patient", font=("Helvetica", 14), command=open_patient_window, width=40, height=2,
-                           bd=0, highlightthickness=0,bg="#A9BABD")
+                           bd=0, highlightthickness=0, bg="#A9BABD")
 patient_button.place(relx=0.70, rely=0.5, anchor="center")
 
-# Adjust button width and height based on the screen size
-button_width = int(root.winfo_screenwidth() / 80)
-button_height = int(root.winfo_screenheight() / 120)
+button_width = int(w / 120)
+button_height = int(h / 120)
 root.mainloop()
