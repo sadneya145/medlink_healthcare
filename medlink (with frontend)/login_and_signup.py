@@ -4,13 +4,16 @@ import re
 import mysql.connector
 from PIL import Image, ImageTk
 from functools import partial
+import patient_homepage
+import doctor_profilepage
+
 
 # MySQL connection parameters
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': '',
-    'database': '',
+    'password': 'root',
+    'database': 'ehealthcare',
 }
 
 # Function to execute SQL queries
@@ -135,18 +138,10 @@ def open_doctor_window():
     root.withdraw()
     doctor_window = tk.Toplevel(root)
     center_window(doctor_window)
-    doctor_window.attributes('-fullscreen', True)
+    doctor_window.geometry("1000x800")
 
-<<<<<<< HEAD:medlink1/login_and_signup.py
-    new_image_path = r"medlink1\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype.png"
-    new_pil_image = Image.open(new_image_path).resize((1100, 1000), Image.LANCZOS)
-=======
-    # Open and convert the new image using Pillow
-    new_image_path = r"doctor.png"
-
-    # Replace with the path to your new image
-    new_pil_image = Image.open(new_image_path)
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
+    new_image_path = r"MedLink\medlink (with frontend)\doctor_l.png"
+    new_pil_image = Image.open(new_image_path).resize((1000, 800), Image.LANCZOS)
     new_tk_image = ImageTk.PhotoImage(new_pil_image)
 
     new_background_label = tk.Label(doctor_window, image=new_tk_image)
@@ -161,42 +156,22 @@ def open_doctor_window():
         open_signup_window("Doctor")
 
     login_button = tk.Button(
-<<<<<<< HEAD:medlink1/login_and_signup.py
         doctor_window,
         text="Login", font=("Helvetica", 14),
         command=doctor_login_clicked,
         bd=0,  # Border width
         highlightthickness=-1,  # Set to a negative value for transparency
         bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
-=======
-    doctor_window,
-    text="Login",font=("Helvetica", 14),
-    command=doctor_login_clicked,
-    bd=0,
-    highlightthickness=-1,
-    bg="#A9BABD", 
-    width=18, height=2
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
     )
     login_button.place(relx=0.70, rely=0.4, anchor="center")
 
     signup_button = tk.Button(
-<<<<<<< HEAD:medlink1/login_and_signup.py
         doctor_window,
         text="Signup", font=("Helvetica", 14),
         command=doctor_signup_clicked,
         bd=0,  # Border width
         highlightthickness=-1,  # Set to a negative value for transparency
         bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
-=======
-    doctor_window,
-    text="Signup",font=("Helvetica", 14),
-    command=doctor_signup_clicked,
-    bd=0,  # Border width
-    highlightthickness=-1,  # Set to a negative value for transparency
-    bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
-     width=18, height=2
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
     )
     signup_button.place(relx=0.70, rely=0.6, anchor="center")
 
@@ -211,23 +186,15 @@ def open_patient_window():
     root.withdraw()
     patient_window = tk.Toplevel(root)
     center_window(patient_window)
-    patient_window.attributes('-fullscreen', True)
+    patient_window.geometry("1000x800")
 
-<<<<<<< HEAD:medlink1/login_and_signup.py
-    new_image_path = r"medlink1\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype (2).png"
-    new_pil_image = Image.open(new_image_path).resize((1100, 1000), Image.LANCZOS)
-=======
-    # Open and convert the new image using Pillow
-    new_image_path = r"patient.png"
-
-    # Replace with the path to your new image
-    new_pil_image = Image.open(new_image_path)
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
+    new_image_path = r"MedLink\medlink (with frontend)\doctor_l.png"
+    new_pil_image = Image.open(new_image_path).resize((1000, 800), Image.LANCZOS)
     new_tk_image = ImageTk.PhotoImage(new_pil_image)
 
     new_background_label = tk.Label(patient_window, image=new_tk_image)
     new_background_label.place(x=0, y=0, relwidth=1, relheight=1)
-
+    
     def patient_login_clicked():
         patient_window.destroy()
         open_login_window("Patient")
@@ -237,42 +204,22 @@ def open_patient_window():
         open_signup_window("Patient")
 
     login_button = tk.Button(
-<<<<<<< HEAD:medlink1/login_and_signup.py
         patient_window,
         text="Login", font=("Helvetica", 14),
         command=patient_login_clicked,
         bd=0,  # Border width
         highlightthickness=-1,  # Set to a negative value for transparency
         bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
-=======
-    patient_window,
-    text="Login",font=("Helvetica", 14),
-    command=patient_login_clicked,
-    bd=0,  # Border width
-    highlightthickness=-1,  # Set to a negative value for transparency
-    bg="#A9BABD",
-     width=18, height=2
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
     )
     login_button.place(relx=0.70, rely=0.4, anchor="center")
 
     signup_button = tk.Button(
-<<<<<<< HEAD:medlink1/login_and_signup.py
         patient_window,
         text="Signup", font=("Helvetica", 14),
         command=patient_signup_clicked,
         bd=0,  # Border width
         highlightthickness=-1,  # Set to a negative value for transparency
         bg="#A9BABD",  # Background color (you can set this to an empty string or any transparent color)
-=======
-    patient_window,
-    text="Signup",font=("Helvetica", 14),
-    command=patient_signup_clicked,
-    bd=0,  # Border width
-    highlightthickness=-1,  # Set to a negative value for transparency
-    bg="#A9BABD",
-     width=18, height=2
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
     )
     signup_button.place(relx=0.70, rely=0.6, anchor="center")
 
@@ -288,16 +235,10 @@ def open_login_window(user_type):
     login_window = tk.Toplevel(root)
     login_window.title(f"{user_type} Login")
     center_window(login_window)
-    login_window.attributes('-fullscreen', True)
-<<<<<<< HEAD:medlink1/login_and_signup.py
-=======
-    
-    # Open and convert the new image using Pillow
-    new_image_path = r"4.png"
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
+    login_window.geometry("1000x800")
 
-    new_image_path = r"medlink1\4.png"
-    new_pil_image = Image.open(new_image_path).resize((1100, 1000), Image.LANCZOS)
+    new_image_path = r"MedLink\medlink (with frontend)\login2.png"
+    new_pil_image = Image.open(new_image_path).resize((1000, 800), Image.LANCZOS)
     new_tk_image = ImageTk.PhotoImage(new_pil_image)
 
     new_background_label = tk.Label(login_window, image=new_tk_image)
@@ -306,24 +247,14 @@ def open_login_window(user_type):
     email_label = tk.Label(login_window, text="Email:", width=30, height=3, bg="#A9BABD")
     email_label.place(relx=0.6, rely=0.4, anchor="center")
 
-<<<<<<< HEAD:medlink1/login_and_signup.py
     email_entry = tk.Entry(login_window, width=30)
     email_entry.place(relx=0.9, rely=0.4, anchor="center")
-=======
-    email_entry = tk.Entry(login_window,width=30)
-    email_entry.place(relx=0.7, rely=0.4)
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
 
     password_label = tk.Label(login_window, text="Password:", width=30, height=3, bg="#A9BABD")
     password_label.place(relx=0.6, rely=0.5, anchor="center")
 
-<<<<<<< HEAD:medlink1/login_and_signup.py
     password_entry = tk.Entry(login_window, width=30, show='*')
     password_entry.place(relx=0.9, rely=0.5, anchor="center")
-=======
-    password_entry = tk.Entry(login_window,width=30, show='*')
-    password_entry.place(relx=0.7, rely=0.5)
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
 
     def login():
         email = email_entry.get()
@@ -337,7 +268,6 @@ def open_login_window(user_type):
             messagebox.showwarning("Login Error", "Please enter a valid email and password.")
             login_window.lift()
 
-<<<<<<< HEAD:medlink1/login_and_signup.py
     login_button = tk.Button(login_window, text="Login", font=("Helvetica", 14), command=login, width=40, height=2,
                             bd=0, highlightthickness=0, bg="#A9BABD")
     login_button.place(relx=0.70, rely=0.8, anchor="center")
@@ -345,15 +275,6 @@ def open_login_window(user_type):
     not_user_button = tk.Button(login_window, text="Not a user? Signup here", font=("Helvetica", 14),
                                 command=lambda: open_signup_window(user_type), width=40, height=2,
                                 bd=0, highlightthickness=0, bg="#A9BABD")
-=======
-    login_button = tk.Button(login_window, text="Login", font=("Helvetica", 14), command=login,
-                            bd=0, highlightthickness=0,bg="#A9BABD", width=18, height=2)
-    login_button.place(relx=0.70, rely=0.8, anchor="center")
-
-    not_user_button = tk.Button(login_window, text="Not a user? Signup here", font=("Helvetica", 14),
-                                command=lambda: open_signup_window(user_type),  width=18, height=2,
-                                bd=0, highlightthickness=0,bg="#A9BABD")
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
     not_user_button.place(relx=0.70, rely=0.9, anchor="center")
 
     button_width = int(login_window.winfo_screenwidth() / 70)
@@ -368,20 +289,14 @@ def open_signup_window(user_type):
     signup_window = tk.Toplevel(root)
     signup_window.title(f"{user_type} Signup")
     center_window(signup_window)
-<<<<<<< HEAD:medlink1/login_and_signup.py
-    w = 1100
-    h = 1000
-    signup_window.geometry(f"{w}x{h}")
-=======
-    signup_window.attributes('-fullscreen', True)
-    
-     # Open and convert the new image using Pillow
-    new_image_path = r"2.png"
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
+    signup_window.geometry("1000x800")
 
-    new_image_path = r"medlink1\2.png"
-    new_pil_image = Image.open(new_image_path).resize((w, h), Image.LANCZOS)
+    new_image_path = r"MedLink\medlink (with frontend)\login1.png"
+    new_pil_image = Image.open(new_image_path).resize((1000, 800), Image.LANCZOS)
     new_tk_image = ImageTk.PhotoImage(new_pil_image)
+
+    new_background_label = tk.Label(signup_window, image=new_tk_image)
+    new_background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
     new_background_label = tk.Label(signup_window, image=new_tk_image)
     new_background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -442,7 +357,6 @@ def open_signup_window(user_type):
             messagebox.showwarning("Signup Error", "Please fill in all fields with a valid email and a 10-digit contact number.")
             signup_window.lift()
 
-<<<<<<< HEAD:medlink1/login_and_signup.py
     signup_button = tk.Button(signup_window, text="Signup", command=signup(), font=("Helvetica", 14),  width=40, height=2,
                             bd=0, highlightthickness=0, bg="#A9BABD")
     signup_button.place(relx=0.70, rely=0.8, anchor="center")
@@ -450,15 +364,6 @@ def open_signup_window(user_type):
     already_user_button = tk.Button(signup_window, text="Already a user? Login here", font=("Helvetica", 14),
                                     command=lambda: open_login_window(user_type), width=40, height=2,
                                     bd=0, highlightthickness=0, bg="#A9BABD")
-=======
-    signup_button = tk.Button(signup_window, text="Signup", command=signup, font=("Helvetica", 14),  width=20, height=2,
-                            bd=0, highlightthickness=0,bg="#A9BABD")
-    signup_button.place(relx=0.70, rely=0.8, anchor="center")
-
-    already_user_button = tk.Button(signup_window, text="Already a user? Login here", font=("Helvetica", 14),
-                                command=lambda: open_login_window(user_type), width=20, height=2,
-                                bd=0, highlightthickness=0,bg="#A9BABD")
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
     already_user_button.place(relx=0.70, rely=0.9, anchor="center")
 
     button_width = int(signup_window.winfo_screenwidth() / 60)
@@ -482,41 +387,23 @@ def validate_email(email):
 
 root = tk.Tk()
 root.title("eHealthcare")
-<<<<<<< HEAD:medlink1/login_and_signup.py
-w = 1100
-h = 1000
+w = 1000
+h = 800
 root.geometry(f"{w}x{h}")
-=======
-root.attributes('-fullscreen', True)
- # Open and convert the image using Pillow
- # Open and convert the image using Pillow
-image_path = r"first_page.png"
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
 
-image_path = r"medlink1\Purple and Pink Flat Color UI Login Page Simple Desktop UI Prototype (1).png"
+image_path = r"MedLink\medlink (with frontend)\main.png"
 pil_image = Image.open(image_path).resize((w, h), Image.LANCZOS)
 tk_image = ImageTk.PhotoImage(pil_image)
 
 background_label = tk.Label(root, image=tk_image)
 background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-<<<<<<< HEAD:medlink1/login_and_signup.py
 doctor_button = tk.Button(root, text="Doctor", font=("Helvetica", 14), command=open_doctor_window, width=40, height=2,
                           bd=0, highlightthickness=0, bg="#A9BABD")
 doctor_button.place(relx=0.70, rely=0.4, anchor="center")
 
 patient_button = tk.Button(root, text="Patient", font=("Helvetica", 14), command=open_patient_window, width=40, height=2,
                            bd=0, highlightthickness=0, bg="#A9BABD")
-=======
-# Create Doctor Button
-doctor_button = tk.Button(root, text="Doctor", font=("Helvetica", 14), command=open_doctor_window,  width=18, height=2,
-                          bd=0, highlightthickness=0,bg="#A9BABD")
-doctor_button.place(relx=0.70, rely=0.4, anchor="center")
-
-# Create Patient Button
-patient_button = tk.Button(root, text="Patient", font=("Helvetica", 14), command=open_patient_window,  width=18, height=2,
-                           bd=0, highlightthickness=0,bg="#A9BABD")
->>>>>>> 02cc8097a6ea3ef04f96df7464c8686a6451ab7c:medlink (with frontend)/login_and_signup.py
 patient_button.place(relx=0.70, rely=0.5, anchor="center")
 
 button_width = int(w / 120)
