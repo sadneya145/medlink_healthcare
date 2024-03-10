@@ -19,8 +19,9 @@ from tkinter import filedialog
 import os
 import shutil
 import webbrowser
-
-
+import ssl
+# import pyautogui
+# import time
 # MySQL connection parameters
 db_config = {
     'host': 'localhost',
@@ -109,17 +110,31 @@ execute_query("""CREATE TABLE IF NOT EXISTS medical_records (
     """)
 
 execute_query("""
-              CREATE TABLE IF NOT EXISTS bills (
-    BillID INT PRIMARY KEY AUTO_INCREMENT,
+            CREATE TABLE IF NOT EXISTS bills (
+    bill_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT,
+    appointment_id INT,
+    total_amount DECIMAL(10, 2),
+    additional_details TEXT,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id),
+    FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id)
+);
+""")
+
+# Create the video_calls table
+execute_query("""
+CREATE TABLE IF NOT EXISTS video_calls (
+    CallID INT AUTO_INCREMENT PRIMARY KEY,
     PatientID INT,
-    AppointmentID INT,
-    TotalAmount DECIMAL(10, 2),
-    AdditionalDetails VARCHAR(255),
-    BillDate DATE,
+    DoctorID INT,
+    MeetingID VARCHAR(50),
+    AccessCode VARCHAR(10),
+    CallDate DATETIME,
     FOREIGN KEY (PatientID) REFERENCES patient_info(id),
-    FOREIGN KEY (AppointmentID) REFERENCES appointments(AppointmentID)
+    FOREIGN KEY (DoctorID) REFERENCES doctor_info(id)
 )
 """)
+
 def get_connection():
     try:
         conn = mysql.connector.connect(**db_config)
@@ -147,7 +162,7 @@ def p_login(p_mail, p_pass):
         open_main_p()
         patient_id = get_logged_in_patient_id() 
     else:
-        messagebox.showinfo("Login", "Invalid Contact number or password. Please try again!")
+        messagebox.showinfo("Login", "Invalid Email or password. Please try again!")
 
 def get_logged_in_patient_id():
     global current_patient_id
@@ -461,6 +476,7 @@ def open_main_d():
     tk.Button(left_panel, text="Enter Fees", command=open_fee_entry_frame).pack(pady=50)
     # Add a button to the doctor profile to view patient records
     tk.Button(left_panel, text="View Patient Records", command=fetch_patient_records).pack(pady=50)
+    # tk.Button(left_panel,text="Video call",command=make_video_call).pack(pady=50)
 
     # Right Panel
     right_panel = tk.Frame(main_d, bg='white', padx=20, pady=20)
@@ -479,6 +495,93 @@ def open_main_d():
     # MedLink Company Information
     tk.Label(right_panel, text=company_info_text, font=('Helvetica', 12)).pack()
     main_d.mainloop()
+
+# def make_video_call():
+#     # Open Microsoft Edge
+#     pyautogui.press('win', interval=0.5)
+#     time.sleep(1)
+#     pyautogui.typewrite('microsoft edge', interval=0.5)
+#     time.sleep(1)
+#     pyautogui.press('enter', interval=0.5)
+#     time.sleep(5)  # Adjust this delay based on your system's performance
+
+#     # Type Google Meet URL
+#     pyautogui.typewrite('https://meet.google.com/', interval=0.3)
+#     time.sleep(1)
+#     pyautogui.press('enter', interval=0.5)
+#     time.sleep(5)  # Adjust this delay based on your system's performance
+
+#     # Click on 'Join or start a meeting'
+#     pyautogui.click(175, 781)
+#     time.sleep(2)
+
+#     # Click on 'Create a new meeting'
+#     pyautogui.click(259, 782)
+#     time.sleep(2)
+
+#     # Copy the meeting code (adjust coordinates based on your screen)
+#     pyautogui.click(1156, 675)
+#     pyautogui.hotkey('ctrl', 'c')
+#     time.sleep(1)
+
+#     pyautogui.click(1166, 466)
+#     time.sleep(1)
+#     # Click on 'Enter a code or link'
+#     pyautogui.click(476, 781)
+#     time.sleep(1)
+
+#     # Paste the meeting code
+#     pyautogui.hotkey('ctrl', 'v')
+#     time.sleep(1)
+
+#     # Press Enter to Join
+#     pyautogui.press('enter', interval=0.2)
+#     time.sleep(9)
+
+#     # Click on Camera and Microphone Buttons (Adjust coordinates based on your screen)
+#     pyautogui.click(817, 781)
+#     time.sleep(2)
+#     pyautogui.click(500, 570)
+#     time.sleep(2)
+
+#     # Alert and Confirmation
+#     pyautogui.alert(text='We are entering a meeting', title='Info', button='OK')
+#     time.sleep(1)
+
+#     # Click on Join Meeting Button (Adjust coordinates based on your screen)
+#     pyautogui.click(990, 440)
+
+#     # Get the meeting ID and access code from the current URL
+#     current_url = pyautogui.hotkey('ctrl', 'l')
+#     meeting_id, access_code = extract_meeting_details(current_url)
+
+#     # Get patient and doctor details
+#     patient_name = get_patient_name()
+#     patient_id = get_logged_in_patient_id()
+#     doctor_id = get_logged_in_doctor_id()
+
+#     # Save video call details to the database
+#     save_video_call_to_database(patient_id, doctor_id, meeting_id, access_code)
+
+#     print(f"Video call details saved for patient {patient_name}")
+# def save_video_call_to_database(patient_id, doctor_id, meeting_id, access_code):
+#     # Save video call details to the video_calls table
+#     query = """
+#     INSERT INTO video_calls (PatientID, DoctorID, MeetingID, AccessCode, CallDate)
+#     VALUES (%s, %s, %s, %s, NOW())
+#     """
+#     values = (patient_id, doctor_id, meeting_id, access_code)
+#     execute_query(query, values)
+# def extract_meeting_details(url):
+#     # Extract meeting ID and access code from the URL
+#     # You need to implement this based on the actual structure of the Google Meet URL
+#     # For simplicity, let's assume the URL structure is like: https://meet.google.com/MEETING_ID?authuser=ACCESS_CODE
+#     # Adjust this logic based on the actual URL structure
+#     meeting_id = url.split('/')[-1].split('?')[0]
+#     access_code = url.split('authuser=')[-1]
+#     return meeting_id, access_code
+    
+
 
 def fetch_patient_records():
     # Fetch the patient's medical records from the database
@@ -590,15 +693,23 @@ def save_fees(consultation_fee, lab_test_fee, medication_fee, other_fees):
 
 
 def generate_receipt_pdf(patient_id, doctor_name, appointment_details, total_amount):
+    # Specify the directory where you want to save the PDF files
+    # Specify the directory where medical records (PDF files) are stored
+    medical_records_directory = r"medical_records"
+
+    
+    # Create the directory if it doesn't exist
+    os.makedirs(medical_records_directory, exist_ok=True)
+
     # Create a PDF file
-    pdf_filename = f"Receipt_Patient_{patient_id}.pdf"
+    pdf_filename = os.path.join(medical_records_directory, f"Receipt_Patient_{patient_id}.pdf")
     pdf_canvas = canvas.Canvas(pdf_filename)
 
     # Add content to the PDF
     pdf_canvas.setFont("Helvetica", 12)
     pdf_canvas.drawString(100, 800, "Healthcare Receipt")
     pdf_canvas.drawString(100, 780, "-" * 50)
-    
+
     pdf_canvas.drawString(100, 760, f"Patient ID: {patient_id}")
     pdf_canvas.drawString(100, 740, f"Doctor Name: {doctor_name}")
     pdf_canvas.drawString(100, 720, f"Appointment Date: {appointment_details[0]}")
@@ -609,15 +720,58 @@ def generate_receipt_pdf(patient_id, doctor_name, appointment_details, total_amo
 
     # Save the PDF file
     pdf_canvas.save()
+
+    # Return the path to the generated PDF
+    return pdf_filename
     
-def generate_healthcare_receipt(appointment_id, patient_id, doctor_name=None):
-    # Existing code for generating the receipt
+
+# Global variable to store doctor_name
+doctor_name = None
+
+def get_doctor_name():
+    # Create a new window for entering doctor name
+    name_window = tk.Toplevel(root)
+    name_window.title("Enter Doctor Name")
+
+    # Function to handle the submission of doctor name
+    def submit_name():
+        global doctor_name
+        doctor_name = name_entry.get()
+        name_window.destroy()  # Close the window after submitting the name
+
+    # Entry widget for the doctor name
+    name_label = ttk.Label(name_window, text="Enter Doctor's Name:")
+    name_label.grid(row=0, column=0, padx=10, pady=10)
+
+    name_entry = ttk.Entry(name_window, width=30)
+    name_entry.grid(row=0, column=1, padx=10, pady=10)
+
+    submit_button = ttk.Button(name_window, text="Submit", command=submit_name)
+    submit_button.grid(row=1, column=0, columnspan=2, pady=10)
+
+    name_window.wait_window(name_window)  # Wait for the window to be closed
+    return doctor_name
+
+# Now, use get_doctor_name in generate_healthcare_receipt
+def generate_healthcare_receipt(appointment_id, patient_id):
+    global doctor_name  # Declare doctor_name as a global variable
+    # Fetch doctor's name from the entered value
+    doctor_name = get_doctor_name()
 
     # Fetch fees from the database or use default values
     doctor_id = get_logged_in_doctor_id()  # Implement a function to get the logged-in doctor's ID
     fees_query = "SELECT Consultation_fee, Lab_test_fee, Medication_fee, Other_fees FROM doctor_info WHERE id = %s"
     fees = fetch_data(fees_query, (doctor_id,))
     consultation_fee, lab_test_fee, medication_fee, other_fees = fees[0] if fees else (0, 0, 0, 0)
+
+    # Fetch appointment date and time from the database
+    appointment_details_query = """
+    SELECT AppointmentDate, AppointmentTime
+    FROM appointments
+    WHERE AppointmentID = %s
+    """
+    appointment_details = fetch_data(appointment_details_query, (appointment_id,))
+    appointment_date, appointment_time = appointment_details[0] if appointment_details else (None, None)
 
     # Calculate total amount
     total_amount = consultation_fee + lab_test_fee + medication_fee + other_fees
@@ -626,37 +780,41 @@ def generate_healthcare_receipt(appointment_id, patient_id, doctor_name=None):
     save_bill_to_database(patient_id, appointment_id, total_amount, "Additional Details")
 
     # Continue with generating the receipt PDF
-    generate_receipt_pdf(patient_id, doctor_name, appointment_details, total_amount)
+    generate_receipt_pdf(patient_id, doctor_name, (appointment_date, appointment_time), total_amount)
+
+
+
 
 
 
 def save_bill_to_database(patient_id, appointment_id, total_amount, additional_details):
+    # Establish a MySQL database connection
+    connection = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="root",
+        database="ehealthcare"
+    )
+
     try:
-        conn = get_connection()
-        cursor = conn.cursor()
+        with connection.cursor() as cursor:
+            # Define the SQL query to insert bill details into the database
+            insert_bill_query = """
+            INSERT INTO bills (PatientID, AppointmentID, TotalAmount, AdditionalDetails, BillDate)
+            VALUES (%s, %s, %s, %s, NOW())
+            """
 
-        # Insert the bill details into the 'bills' table
-        insert_query = """
-        INSERT INTO bills (PatientID, AppointmentID, TotalAmount, AdditionalDetails)
-        VALUES (%s, %s, %s, %s)
-        """
-        cursor.execute(insert_query, (patient_id, appointment_id, total_amount, additional_details))
-        conn.commit()
 
-    except mysql.connector.Error as err:
-        print(f"Error saving bill to database: {err}")
-        conn.rollback()
+            # Execute the query with the provided parameters
+            cursor.execute(insert_bill_query, (patient_id, appointment_id, total_amount, additional_details))
 
+            # Commit the changes to the database
+            connection.commit()
     finally:
-        if 'conn' in locals() and conn.is_connected():
-            cursor.close()
-            conn.close()
+        # Close the database connection
+        connection.close()
 
-    # Display a message indicating that the bill has been generated and uploaded
-    messagebox.showinfo("Bill Generated", "The bill has been generated and uploaded successfully!")
 
-    # Close the fee entry frame after saving
-    fee_entry_frame.destroy()
     
 def show_doctor_profile():
     profile_page = tk.Toplevel(root)
@@ -873,25 +1031,57 @@ def open_main_p():
     # Add menu items with commands
     options_menu.add_command(label="SHOW APPOINTMENTS", command=open_patient_profile)
     options_menu.add_command(label="MAKE APPOINTMENTS", command=get_patient_name)
-    options_menu.add_command(label="VIDEO CONFERENCING", command=video_call)
+    # options_menu.add_command(label="VIDEO CONFERENCING", command=video_call)
     options_menu.add_command(label="CHAT WITH ME", command=launch_chatbot)
     options_menu.add_command(label="MY PROFILE", command=show_patient_profile)
-    options_menu.add_command(label="BILL PAYMENTS", command=generate_receipt)
+    options_menu.add_command(label="BILL PAYMENTS", command=show_pdf_files)
     options_menu.add_command(label="MEDICAL RECORDS",command=upload_medical_records)
     options_menu.add_command(label="SHOW RECORDS",command=show_uploaded_records)
     # Add a button to the patient profile to show uploaded records
     main_p.info_displayed = True  # Set the flag to indicate that info has been displayed
     main_p.mainloop()
 
+def show_pdf_files():
+    # Specify the directory where medical records (PDF files) are stored
+
+    medical_records_directory = r"medical_records"
 
 
+    # Get a list of PDF files in the directory
+    pdf_files = [file for file in os.listdir(medical_records_directory) if file.endswith(".pdf")]
 
-# Assuming you have the necessary functions like fetch_data and execute_query
-# from your previous code
-# def fetch_data(query, values):
-# def execute_query(query, values):
+    if pdf_files:
+        # Create a new window to display PDF files
+        pdf_window = tk.Toplevel(root)
+        pdf_window.title("PDF Files")
+        pdf_window.geometry("500x300")
 
-# Assuming you have the Tkinter setup code and other required functions
+        # Create a frame for displaying PDF files
+        pdf_frame = tk.Frame(pdf_window)
+        pdf_frame.pack(fill=tk.X, padx=10, pady=5)
+
+        for pdf_file in pdf_files:
+            # Create a frame for each PDF file
+            pdf_file_frame = tk.Frame(pdf_frame)
+            pdf_file_frame.pack(fill=tk.X, padx=10, pady=5)
+
+            # Display file name on the left
+            file_name_label = tk.Label(pdf_file_frame, text=pdf_file)
+            file_name_label.pack(side=tk.LEFT)
+
+            # Create an "Open" button on the right
+            open_button = tk.Button(pdf_file_frame, text="Open", command=lambda f=pdf_file: open_pdf(os.path.join(medical_records_directory, f)))
+            open_button.pack(side=tk.RIGHT)
+
+    else:
+        tk.messagebox.showinfo("No PDF Files", "No PDF files found in the specified directory.")
+
+def open_pdf(file_path):
+    try:
+        os.system(file_path)
+    except Exception as e:
+        messagebox.showinfo("Error", f"Failed to open PDF file: {str(e)}")
+
 
 def upload_medical_records():
     files = filedialog.askopenfilenames(title="Select Medical Records", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
@@ -967,21 +1157,6 @@ def open_file(file_path):
     webbrowser.open(file_path)
 
 
-def pdf_generation(pdf_name, pdf_content):
-    # Create a PDF file
-    pdf_filename = f"{pdf_name}.pdf"
-    pdf_canvas = canvas.Canvas(pdf_filename)
-
-    # Add content to the PDF
-    pdf_canvas.setFont("Helvetica", 12)
-    pdf_canvas.drawString(100, 800, "Healthcare Receipt")
-    pdf_canvas.drawString(100, 780, "-" * 50)
-    
-    # Add custom content based on pdf_content
-    pdf_canvas.drawString(100, 760, pdf_content)
-
-    # Save the PDF file
-    pdf_canvas.save()
 
 def appointment_details(appointment_id):
     # Fetch appointment details for the given appointment ID
@@ -992,47 +1167,6 @@ def appointment_details(appointment_id):
     WHERE appointments.AppointmentID = %s
     """
     return fetch_data(appointment_query, (appointment_id,))
-
-
-
-def generate_receipt():
-    # Fetch and display bills for the specified doctor or patient
-    if current_doctor_id:
-        # Fetch doctor bills data
-        doctor_bills_data = fetch_doctor_bills(current_doctor_id)
-    elif current_patient_id:
-        # Fetch patient bills data
-        patient_bills_data = fetch_patient_bills(current_patient_id)
-    else:
-        raise ValueError("Either doctor_id or patient_id must be provided.")
-
-    # Rest of your code...
-
-def fetch_doctor_bills(doctor_id):
-    # Fetch doctor bills data
-    doctor_bills_query = """
-    SELECT bills.AppointmentID, doctor_info.Name, patient_info.Name, bills.TotalAmount, bills.AdditionalDetails
-    FROM bills
-    INNER JOIN appointments ON bills.AppointmentID = appointments.AppointmentID
-    INNER JOIN doctor_info ON appointments.DoctorID = doctor_info.id
-    INNER JOIN patient_info ON bills.PatientID = patient_info.id
-    WHERE doctor_info.id = %s
-    ORDER BY bills.UploadDate DESC
-    """
-    return fetch_data(doctor_bills_query, (doctor_id,))
-
-def fetch_patient_bills(patient_id):
-    # Fetch patient bills data
-    patient_bills_query = """
-    SELECT bills.AppointmentID, doctor_info.Name, patient_info.Name, bills.TotalAmount, bills.AdditionalDetails
-    FROM bills
-    INNER JOIN appointments ON bills.AppointmentID = appointments.AppointmentID
-    INNER JOIN doctor_info ON appointments.DoctorID = doctor_info.id
-    INNER JOIN patient_info ON bills.PatientID = patient_info.id
-    WHERE patient_info.id = %s
-    ORDER BY bills.UploadDate DESC
-    """
-    return fetch_data(patient_bills_query, (patient_id,))
 
 
 
@@ -1048,7 +1182,7 @@ def create_appointment_frame(root, patient_name):
         schedule_appointment(patient_name, selected_doctor, appointment_date, appointment_day, appointment_time, appointment_status)
 
         # Fetch email from the result (assuming the first tuple and first element)
-        receiver_email = fetch_data("SELECT Email FROM patient_info WHERE Name = %s", (patient_name,))
+        receiver_email = fetch_data("SELECT Email FROM patient_info WHERE Name = %s", (current_patient_name,))
         if receiver_email:
             receiver_email = receiver_email[0][0]
         else:
@@ -1065,7 +1199,7 @@ def create_appointment_frame(root, patient_name):
         message = MIMEMultipart()
         message['From'] = sender_email
         message['To'] = receiver_email
-        message['Subject'] = 'Appointment Schedule '
+        message['Subject'] = 'Appointment Schedule'
 
         # Create the body of the email with clickable links
         body = f"Appointment made for {patient_name} with {selected_doctor} on {appointment_day}, {appointment_date} at {appointment_time}.\nStatus: {appointment_status}\n\n"
@@ -1074,15 +1208,20 @@ def create_appointment_frame(root, patient_name):
         body += f"- [Hospital Information](http://link_to_hospital_info)\n"
         message.attach(MIMEText(body, 'plain'))
 
-        # Connect to the SMTP server
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(sender_email, password)
+        try:
+    # Connect to the SMTP server
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls(context=ssl.create_default_context())  # Use SSL context
+                server.login(sender_email, password)
 
-            # Send the email
-            server.sendmail(sender_email, receiver_email, message.as_string())
+                # Send the email
+                server.sendmail(sender_email, receiver_email, message.as_string())
 
-        print('Mail sent successfully!')
+            print('Mail sent successfully!')
+
+        except smtplib.SMTPException as e:
+            print(f'Error sending email: {e}')
+
 
     def schedule_appointment(patient_name, doctor_name, appointment_date, appointment_day, appointment_time, appointment_status):
         # Fetch patient and doctor IDs based on names
@@ -1105,6 +1244,8 @@ def create_appointment_frame(root, patient_name):
             messagebox.showinfo("Appointment", "Appointment scheduled successfully!")
         else:
             messagebox.showerror("Error", "Patient or doctor not found. Please check the names and try again.")
+
+    # Rest of the code remains unchanged
 
     # Create and configure the frame
     frame = ttk.Frame(root, padding="50")  # Adjust the padding value to make the frame bigger
@@ -1256,11 +1397,6 @@ def show_patient_appointments(email, password):
             conn.close()
 
 
-
-
-
-def video_call():
-    pass
 def launch_chatbot():
     def chat_about_disease(query):
     # Add your logic to handle different types of diseases and their information
@@ -1328,17 +1464,36 @@ def launch_chatbot():
         else:
             return "I'm sorry, I don't have information on that specific disease. It's recommended to consult with a healthcare professional for accurate advice."
 
-    def say(text):
-        engine = pyttsx3.init()
-        engine.say(text)
-        engine.runAndWait()
-        
+    # def say(text):
+        # engine = pyttsx3.init()
+        # engine.say(text)
+        # engine.runAndWait()
+
+    def provide_remedies():
+        remedies = "Here are some general suggestions:\n" \
+                   "1. Maintain a healthy diet and stay hydrated.\n" \
+                   "2. Get regular exercise to promote overall well-being.\n" \
+                   "3. Ensure proper sleep for better health.\n" \
+                   "4. Manage stress through relaxation techniques.\n" \
+                   "5. Consult with a healthcare professional for personalized advice."
+        chat_history.insert(tk.END, f"Chatbot: {remedies}\n\n")
+
+    def help_user():
+        help_text = "How may I help you today? You can ask about specific diseases or request general health information."
+        chat_history.insert(tk.END, f"Chatbot: {help_text}\n\n")
+
     def send_message():
         user_message = user_entry.get()
-        response = chat_about_disease(user_message)
-        chat_history.insert(tk.END, f"User: {user_message}\n")
-        chat_history.insert(tk.END, f"Chatbot: {response}\n\n")
-        say(response)
+
+        if 'remedies' in user_message:
+            provide_remedies()
+        elif 'help' in user_message:
+            help_user()
+        else:
+            response = chat_about_disease(user_message)
+            chat_history.insert(tk.END, f"User: {user_message}\n")
+            chat_history.insert(tk.END, f"Chatbot: {response}\n\n")
+
     root = tk.Tk()
     root.geometry("400x400")
     root.title("Patient Chatbot")
@@ -1354,6 +1509,9 @@ def launch_chatbot():
     # Chat History
     chat_history = scrolledtext.ScrolledText(root, width=40, height=10, wrap=tk.WORD)
     chat_history.pack(pady=10)
+
+    # Provide initial help message
+    help_user()
 
     root.mainloop()
 
