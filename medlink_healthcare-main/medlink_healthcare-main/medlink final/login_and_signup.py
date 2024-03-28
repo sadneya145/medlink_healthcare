@@ -19,6 +19,8 @@ import os
 import shutil
 import webbrowser
 import ssl
+import calendar
+from datetime import datetime
 
 db_config = {
     'host': 'localhost',
@@ -138,28 +140,36 @@ def get_connection():
     except mysql.connector.Error as err:
         messagebox.showerror("Database Error", f"Error: {err}")
 
-global current_patient_id
-global current_patient_name
-
 def p_signup(p_mail, p_pass, p_name, p_contact):
     query = "INSERT INTO patient_info (Email, Name, Contact_no, Password) VALUES (%s, %s, %s, %s)"
     values = (p_mail, p_name, p_contact, p_pass)
     execute_query(query, values)
     messagebox.showinfo("Signup", "Signed up successfully!")
 
+global current_patient_id  # Declare current_patient_id as a global variable
+
 def p_login(p_mail, p_pass):
+    global current_patient_id  # Ensure you're modifying the global variable
     query = "SELECT id FROM patient_info WHERE Email= %s AND Password = %s"
     values = (p_mail, p_pass)
     user = fetch_data(query, values)
 
     if user:
+        
         current_patient_id = user[0][0] 
-        current_patient_name=user[0][2]
+        
         messagebox.showinfo("Login", "Patient login successful!")
         open_main_p(root)
         patient_id = get_logged_in_patient_id() 
     else:
         messagebox.showinfo("Login", "Invalid Email or password. Please try again!")
+        open_signup_window("patient")
+
+def get_logged_in_patient_id():
+    global current_patient_id
+    return current_patient_id
+
+
 
 def get_logged_in_patient_id():
     global current_patient_id
@@ -185,6 +195,7 @@ def d_login(d_mail, d_pass):
         # Now you have the doctor_id available for further use
     else:
         messagebox.showinfo("Login", "Invalid Contact number or password. Please try again!")
+        open_signup_window("Doctor")    
 
 def get_logged_in_doctor_id():
     global current_doctor_id
@@ -724,35 +735,40 @@ def get_patient_name():
             cursor.close()
             conn.close()
 
-# Now, use get_doctor_name in generate_healthcare_receipt
-def generate_healthcare_receipt(appointment_id ):
+def generate_healthcare_receipt(appointment_id):
     global doctor_name  # Declare doctor_name as a global variable
     # Fetch doctor's name from the entered value
     doctor_name = get_doctor_name()
 
-    # Fetch fees from the database or use default values
-    doctor_id = get_logged_in_doctor_id()  # Implement a function to get the logged-in doctor's ID
-    fees_query = "SELECT Consultation_fee, Lab_test_fee, Medication_fee, Other_fees FROM doctor_info WHERE id = %s"
-    fees = fetch_data(fees_query, (doctor_id,))
-    consultation_fee, lab_test_fee, medication_fee, other_fees = fees[0] if fees else (0, 0, 0, 0)
+    if doctor_name:
+        # Fetch fees from the database or use default values
+        doctor_id = get_logged_in_doctor_id()  # Implement a function to get the logged-in doctor's ID
+        fees_query = "SELECT Consultation_fee, Lab_test_fee, Medication_fee, Other_fees FROM doctor_info WHERE id = %s"
+        fees = fetch_data(fees_query, (doctor_id,))
+        consultation_fee, lab_test_fee, medication_fee, other_fees = fees[0] if fees else (0, 0, 0, 0)
 
-    # Fetch appointment date and time from the database
-    appointment_details_query = """
-    SELECT AppointmentDate, AppointmentTime
-    FROM appointments
-    WHERE AppointmentID = %s
-    """
-    appointment_details = fetch_data(appointment_details_query, (appointment_id,))
-    appointment_date, appointment_time = appointment_details[0] if appointment_details else (None, None)
+        # Fetch appointment date and time from the database
+        appointment_details_query = """
+        SELECT AppointmentDate, AppointmentTime
+        FROM appointments
+        WHERE AppointmentID = %s
+        """
+        appointment_details = fetch_data(appointment_details_query, (appointment_id,))
+        appointment_date, appointment_time = appointment_details[0] if appointment_details else (None, None)
 
-    # Calculate total amount
-    total_amount = consultation_fee + lab_test_fee + medication_fee + other_fees
+        # Calculate total amount
+        total_amount = consultation_fee + lab_test_fee + medication_fee + other_fees
+        current_patient_id = get_logged_in_patient_id()
+        # Save bill details to the database
+        save_bill_to_database(current_patient_id, appointment_id, total_amount, "Additional Details")
 
-    # Save bill details to the database
-    save_bill_to_database(current_patient_id, appointment_id, total_amount, "Additional Details")
+        # Continue with generating the receipt PDF
+        generate_receipt_pdf(consultation_fee, lab_test_fee, medication_fee, current_patient_id, other_fees, doctor_name,
+                            (appointment_date, appointment_time), total_amount)
+    else:
+        messagebox.showerror("Doctor Name Error", "Please enter the doctor's name.")
 
-    # Continue with generating the receipt PDF
-    generate_receipt_pdf(consultation_fee ,lab_test_fee,medication_fee,current_patient_id,other_fees, doctor_name, (appointment_date, appointment_time), total_amount)
+
 
 def save_bill_to_database(current_patient_id, appointment_id, total_amount, additional_details):
     # Establish a MySQL database connection
@@ -928,7 +944,7 @@ def view_patient_profile_and_bill(appointment_id, patient_id):
 
     tk.Label(patient_profile_window, text="Patient Information", font=('Helvetica', 14, 'bold')).pack(pady=10)
 
-    for field, value in zip(["ID", "Email", "Name", "Contact Number", "Age", "Gender", "Diagnosis"], patient_info[0]):
+    for field, value in zip(["ID", "Email", "Name", "Contact Number", "Password", "Age", "Diagnosis"], patient_info[0]):
         tk.Label(patient_profile_window, text=f"{field}: {value}").pack()
 
     # Button to give a bill
@@ -1116,18 +1132,37 @@ def appointment_details(appointment_id):
 def create_appointment_frame(root, patient_name):
     def submit_appointment():
         selected_doctor = doctor_combobox.get()
-        appointment_date = cal.get_date()
-        appointment_day = day_combobox.get()
+        appointment_date = cal.get_date().strftime("%m/%d/%Y")  # Convert datetime.date to string
+        appointment_day = cal.get_date().strftime("%A")  # Get day from the selected date
         appointment_time = time_entry.get()
         appointment_status = status_combobox.get()
+    
+        # Check if appointment date is in the past
+        if cal.get_date() < datetime.now().date():
+            messagebox.showerror("Error", "Appointment date cannot be in the past.")
+            return
+
+        # Check if appointment time is valid
+        try:
+            appointment_time_obj = datetime.strptime(appointment_time, "%H:%M").time()
+        except ValueError:
+            messagebox.showerror("Error", "Invalid time format. Please use HH:MM format.")
+            return
+
+        # Check if appointment time is in the past
+        current_time = datetime.now().time()
+        if cal.get_date() == datetime.now().date() and appointment_time_obj < current_time:
+            messagebox.showerror("Error", "Appointment time cannot be in the past.")
+            return
+
         schedule_appointment(patient_name, selected_doctor, appointment_date, appointment_day, appointment_time, appointment_status)
 
         # Fetch email from the result (assuming the first tuple and first element)
-        receiver_email = fetch_data("SELECT Email FROM patient_info WHERE Name = %s", (current_patient_name,))
+        receiver_email = fetch_data("SELECT Email FROM patient_info WHERE Name = %s", (patient_name,))
         if receiver_email:
             receiver_email = receiver_email[0][0]
         else:
-            print("Error: Email not found for the given patient name.")
+            messagebox.showerror("Error", "Email not found for the given patient name.")
             return
 
         print(f"Receiver Email: {receiver_email}")
@@ -1150,7 +1185,7 @@ def create_appointment_frame(root, patient_name):
         message.attach(MIMEText(body, 'plain'))
 
         try:
-    # Connect to the SMTP server
+            # Connect to the SMTP server
             with smtplib.SMTP(smtp_server, smtp_port) as server:
                 server.starttls(context=ssl.create_default_context())  # Use SSL context
                 server.login(sender_email, password)
@@ -1158,13 +1193,15 @@ def create_appointment_frame(root, patient_name):
                 # Send the email
                 server.sendmail(sender_email, receiver_email, message.as_string())
 
-            print('Mail sent successfully!')
+            messagebox.showinfo("Success", 'Mail sent successfully!')
 
         except smtplib.SMTPException as e:
-            print(f'Error sending email: {e}')
-
+            messagebox.showerror("Error", f'Error sending email: {e}')
 
     def schedule_appointment(patient_name, doctor_name, appointment_date, appointment_day, appointment_time, appointment_status):
+        # Convert appointment date to MySQL-compatible format (YYYY-MM-DD)
+        appointment_date_mysql = datetime.strptime(appointment_date, "%m/%d/%Y").strftime("%Y-%m-%d")
+
         # Fetch patient and doctor IDs based on names
         patient_id = fetch_data("SELECT id FROM patient_info WHERE Name = %s", (patient_name,))
         doctor_id = fetch_data("SELECT id FROM doctor_info WHERE Name = %s", (doctor_name,))
@@ -1180,13 +1217,12 @@ def create_appointment_frame(root, patient_name):
             INSERT INTO appointments (PatientID, DoctorID, AppointmentDate, AppointmentDay, AppointmentTime, AppointmentStatus)
             VALUES (%s, %s, %s, %s, %s, %s)
             """
-            values = (patient_id, doctor_id, appointment_date, appointment_day, appointment_time, appointment_status)
+            values = (patient_id, doctor_id, appointment_date_mysql, appointment_day, appointment_time, appointment_status)
             execute_query(query, values)
             messagebox.showinfo("Appointment", "Appointment scheduled successfully!")
         else:
             messagebox.showerror("Error", "Patient or doctor not found. Please check the names and try again.")
-
-    # Rest of the code remains unchanged
+        
 
     # Create and configure the frame
     frame = ttk.Frame(root, padding="50")  # Adjust the padding value to make the frame bigger
@@ -1220,14 +1256,14 @@ def create_appointment_frame(root, patient_name):
     cal = DateEntry(frame, width=30, background='darkblue', foreground='white', borderwidth=2)
     cal.grid(row=2, column=1, sticky=tk.W, pady=10)  # Increased pady value for spacing
 
-    # Sample list of days, replace it with your own list
-    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    day_label = ttk.Label(frame, text="Select Day:")
-    day_label.grid(row=3, column=0, sticky=tk.W, pady=5)
-    day_label.configure(background="#A9BABD", foreground="white", font=("Helvetica", 12))
+    # Sample list of appointment statuses, replace it with your own list
+    statuses = ["Confirm", "Cancel"]
+    status_label = ttk.Label(frame, text="Appointment Status:")
+    status_label.grid(row=3, column=0, sticky=tk.W, pady=5)
+    status_label.configure(background="#A9BABD", foreground="white", font=("Helvetica", 12))
 
-    day_combobox = ttk.Combobox(frame, values=days, state="readonly")
-    day_combobox.grid(row=3, column=1, sticky=tk.W, pady=10)  # Increased pady value for spacing
+    status_combobox = ttk.Combobox(frame, values=statuses, state="readonly")
+    status_combobox.grid(row=3, column=1, sticky=tk.W, pady=10)  # Increased pady value for spacing
 
     time_label = ttk.Label(frame, text="Appointment Time:")
     time_label.grid(row=4, column=0, sticky=tk.W, pady=5)
@@ -1236,24 +1272,16 @@ def create_appointment_frame(root, patient_name):
     time_entry = ttk.Entry(frame, width=30)
     time_entry.grid(row=4, column=1, sticky=tk.W, pady=10)  # Increased pady value for spacing
 
-    # Sample list of appointment statuses, replace it with your own list
-    statuses = ["Confirm", "Cancel"]
-    status_label = ttk.Label(frame, text="Appointment Status:")
-    status_label.grid(row=5, column=0, sticky=tk.W, pady=5)
-    status_label.configure(background="#A9BABD", foreground="white", font=("Helvetica", 12))
-
-    status_combobox = ttk.Combobox(frame, values=statuses, state="readonly")
-    status_combobox.grid(row=5, column=1, sticky=tk.W, pady=10)  # Increased pady value for spacing
-
     # Create a button to submit the appointment
     submit_button = ttk.Button(frame, text="Submit Appointment", command=submit_appointment)
-    submit_button.grid(row=6, column=0, columnspan=2, pady=20)  # Adjust the pady value to provide more space
+    submit_button.grid(row=5, column=0, columnspan=2, pady=20)  # Adjust the pady value to provide more space
 
     # Create a label to display the result
     result_label = ttk.Label(frame, text="")
-    result_label.grid(row=7, column=0, columnspan=2, pady=20)  # Adjust the pady value to provide more space
+    result_label.grid(row=6, column=0, columnspan=2, pady=20)  # Adjust the pady value to provide more space
 
     return frame
+
 
 def open_patient_profile():
     profile_page = tk.Toplevel(root)
